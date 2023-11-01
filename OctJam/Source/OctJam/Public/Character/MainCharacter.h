@@ -23,6 +23,18 @@ enum class LastMoveDirection : uint8
 	LMD_None      UMETA(DisplayName = "None"),
 };
 
+UENUM(BlueprintType)
+enum class EMaterialType : uint8
+{
+	MT_SURFACE_DEFAULT UMETA(DisplayName = "Default"),
+	MT_SURFACE_DIRT    UMETA(DisplayName = "Dirt"),
+	MT_SURFACE_GRAVEL  UMETA(DisplayName = "Gravel"),
+	MT_SURFACE_GLASS   UMETA(DisplayName = "Glass"),
+	MT_SURFACE_MUD     UMETA(DisplayName = "Mud"),
+	MT_SURFACE_PUDDLE  UMETA(DisplayName = "Puddle"),
+	MT_SURFACE_STONE   UMETA(DisplayName = "Stone")
+};
+
 UCLASS()
 class OCTJAM_API AMainCharacter : public ACharacter
 {
@@ -37,6 +49,9 @@ public:
 	// Functions for movement
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	UFUNCTION(BlueprintCallable, Category = "Light")
+	void AdjustLightBasedOnMapLevel();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UPaperFlipbookComponent* CharacterSprite;
@@ -117,5 +132,8 @@ private:
 	float MoveRightValue;
 	float LastMoveForwardValue;
 	float LastMoveRightValue;
+
+public:
+	EMaterialType GetSurfaceType();
 
 };
