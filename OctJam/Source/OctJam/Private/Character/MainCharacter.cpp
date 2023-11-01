@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PaperFlipbook.h"
 #include "PaperFlipbookComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Sound/SoundCue.h"
 
 AMainCharacter::AMainCharacter()
@@ -49,6 +50,8 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+  AdjustLightBasedOnMapLevel();
 	
 }
 
@@ -106,6 +109,40 @@ void AMainCharacter::MoveRight(float Value)
 	}
 
 	LastMoveRightValue = Value;
+}
+
+void AMainCharacter::AdjustLightBasedOnMapLevel()
+{
+  // Getting the name of the current level
+  FString currentLevelName = GetWorld()->GetName();
+
+  int newRadius;
+  float newIntensity;
+
+  // Adjust the radius based on the level name
+  if (currentLevelName.Contains("Level1"))
+  {
+    newRadius = 1000;
+    newIntensity = 20000;
+  }
+  else if (currentLevelName.Contains("Level2"))
+  {
+    newRadius = 2000;
+    newIntensity = 25000;
+  }
+  else if (currentLevelName.Contains("Level3"))
+  {
+    newRadius = 3000;
+    newIntensity = 30000;
+  }
+  else
+  {
+    newRadius = 1000;
+    newIntensity = 20000;
+  }
+
+  // Set the new attenuation radius for the point light
+  PointLight->SetAttenuationRadius(newRadius);
 }
 
 void AMainCharacter::UpdateCharacterDirection()
@@ -180,44 +217,48 @@ void AMainCharacter::SetMovingDirection(LastMoveDirection Direction, UPaperFlipb
 
 void AMainCharacter::PlayFootstepSound()
 {
-  const int FramesPerStep = 22; // Adjust this value to slow down the footstep sounds
-  const float VolumeMultiplier = 0.5f; // Adjust this value to control the volume
+  const int FramesPerStep = 20; // Adjust this value to slow down the footstep sounds
+  const float VolumeMultiplier = 1.0f; // Adjust this value to control the volume
 
   // Check if the character is moving
   if (GetVelocity().Size() > 0)
   {
     static int FrameCounter = 0;
 
-    TArray<USoundCue*>* SelectedFootstepSounds = &FootstepStoneSounds; // Default to stone
+    // Determine the surface type the character is currently on
+    EMaterialType MaterialType = GetSurfaceType();
 
-    /* UNCOMMENT WHEN WE HAVE THE CONDITIONS TO SWITCH BETWEEN FOOTSTEP SOUNDS
-    if (OnDirtCondition)
+    TArray<USoundCue*>* SelectedFootstepSounds = nullptr;
+
+    switch (MaterialType)
     {
-        SelectedFootstepSounds = &FootstepDirtSounds;
+    case EMaterialType::MT_SURFACE_DIRT:
+      SelectedFootstepSounds = &FootstepDirtSounds;
+      break;
+    case EMaterialType::MT_SURFACE_GRAVEL:
+      SelectedFootstepSounds = &FootstepGravelSounds;
+      break;
+    case EMaterialType::MT_SURFACE_GLASS:
+      SelectedFootstepSounds = &FootstepGlassSounds;
+      break;
+    case EMaterialType::MT_SURFACE_MUD:
+      SelectedFootstepSounds = &FootstepMudSounds;
+      break;
+    case EMaterialType::MT_SURFACE_PUDDLE:
+      SelectedFootstepSounds = &FootstepPuddleSounds;
+      break;
+    case EMaterialType::MT_SURFACE_STONE:
+      SelectedFootstepSounds = &FootstepStoneSounds;
+      break;
+    default:
+      // Handle default case or other material types here.
+      break;
     }
-    else if (OnGlassCondition)
-    {
-        SelectedFootstepSounds = &FootstepStoneSounds;
-    }
-    else if (OnGravelCondition)
-    {
-        SelectedFootstepSounds = &FootstepGravelSounds;
-    }
-    else if (OnPuddleCondition)
-    {
-        SelectedFootstepSounds = &FootstepStoneSounds;
-    }
-    else if (OnStoneCondition)
-    {
-        SelectedFootstepSounds = &FootstepStoneSounds;
-    }
-    // ... (add more conditions as needed)
-    */
 
     FrameCounter++;
 
     // Check if there are footstep sounds available to play
-    if (SelectedFootstepSounds->Num() > 0 && FrameCounter >= FramesPerStep)
+    if (SelectedFootstepSounds && SelectedFootstepSounds->Num() > 0 && FrameCounter >= FramesPerStep)
     {
       int32 RandomIndex = FMath::RandRange(0, SelectedFootstepSounds->Num() - 1);
       UGameplayStatics::PlaySoundAtLocation(this, (*SelectedFootstepSounds)[RandomIndex], GetActorLocation(), VolumeMultiplier);
@@ -226,3 +267,59 @@ void AMainCharacter::PlayFootstepSound()
   }
 }
 
+EMaterialType AMainCharacter::GetSurfaceType()
+{
+  FVector Start = GetActorLocation();
+  FVector DownVector = -GetActorUpVector();
+  FVector End = ((DownVector * 500.f) + Start);
+
+  FHitResult HitResult;
+  FCollisionQueryParams CollisionParams;
+
+  GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+
+  if (HitResult.bBlockingHit)
+  {
+    UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+    if (HitComponent)
+    {
+      UMaterialInterface* HitMaterial = HitComponent->GetMaterial(0);
+      if (HitMaterial)
+      {
+        FString MaterialName = HitMaterial->GetName();
+        UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *MaterialName);
+
+        if (MaterialName.Contains("Dirt"))
+        {
+          return EMaterialType::MT_SURFACE_DIRT;
+        }
+        else if (MaterialName.Contains("Gravel"))
+        {
+          return EMaterialType::MT_SURFACE_GRAVEL;
+        }
+        else if (MaterialName.Contains("Glass"))
+        {
+          return EMaterialType::MT_SURFACE_GLASS;
+        }
+        else if (MaterialName.Contains("Mud"))
+        {
+          return EMaterialType::MT_SURFACE_MUD;
+        }
+        else if (MaterialName.Contains("Puddle"))
+        {
+          return EMaterialType::MT_SURFACE_PUDDLE;
+        }
+        else if (MaterialName.Contains("Stone"))
+        {
+          return EMaterialType::MT_SURFACE_STONE;
+        }
+      }
+    }
+  }
+  else
+  {
+    UE_LOG(LogTemp, Warning, TEXT("No blocking hit found."));
+  }
+
+  return EMaterialType::MT_SURFACE_DEFAULT;
+}
