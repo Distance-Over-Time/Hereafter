@@ -84,8 +84,10 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::Patrol()
 {
-	FVector NewPatrolCenter = GetActorLocation();
-	PatrolTargetLocation = UKismetMathLibrary::RandomPointInBoundingBox(NewPatrolCenter, FVector(PatrolRadius, PatrolRadius, 0.0f));
+  PatrolRadius = FMath::RandRange(500.0f, 700.0f);
+
+  FVector NewPatrolCenter = GetActorLocation();
+  PatrolTargetLocation = UKismetMathLibrary::RandomPointInBoundingBox(NewPatrolCenter, FVector(PatrolRadius, PatrolRadius, 0.0f));
 }
 
 void AEnemy::ContinuePatrol()
