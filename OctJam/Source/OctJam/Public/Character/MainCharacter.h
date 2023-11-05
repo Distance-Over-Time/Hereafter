@@ -14,7 +14,7 @@ class USoundCue;
 class USpringArmComponent;
 
 UENUM(BlueprintType)
-enum class LastMoveDirection : uint8
+enum class ELastMoveDirection : uint8
 {
 	LMD_Forward   UMETA(DisplayName = "Forward"),
 	LMD_Backward  UMETA(DisplayName = "Backward"),
@@ -46,14 +46,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Functions for movement
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-
 	UFUNCTION(BlueprintCallable, Category = "Light")
 	void AdjustLightBasedOnMapLevel();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
 	UPaperFlipbookComponent* CharacterSprite;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -106,10 +102,23 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	// Functions for movement
+	void MoveForwardDown();
+	void MoveForwardUp();
+	void MoveBackwardDown();
+	void MoveBackwardUp();
+	void MoveRightDown();
+	void MoveRightUp();
+	void MoveLeftDown();
+	void MoveLeftUp();
+
 	void UpdateCharacterDirection();
 	void UpdateLightPosition();
 	void UpdateIdlePose();
-	void SetMovingDirection(LastMoveDirection Direction, UPaperFlipbook* Flipbook);
+	void UpdateMovementDirection();
+	void SetMovingDirection(ELastMoveDirection Direction, UPaperFlipbook* Flipbook);
+	FVector DetermineMovementDirection();
+	void HandleMovement(const FVector& Direction, float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void PlayFootstepSound();
@@ -120,18 +129,19 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-	UStaticMeshComponent* StaticMesh;
-
 	UPROPERTY(VisibleAnywhere)
 	UPointLightComponent* PointLight;
 
-	LastMoveDirection LastDirection = LastMoveDirection::LMD_None;
+	ELastMoveDirection LastDirection = ELastMoveDirection::LMD_None;
+	ELastMoveDirection PreviousDirection = ELastMoveDirection::LMD_None;
 
 	float MoveForwardValue;
 	float MoveRightValue;
-	float LastMoveForwardValue;
-	float LastMoveRightValue;
+
+	bool bIsForwardPressed = false;
+	bool bIsBackPressed = false;
+	bool bIsRightPressed = false;
+	bool bIsLeftPressed = false;
 
 public:
 	EMaterialType GetSurfaceType();
