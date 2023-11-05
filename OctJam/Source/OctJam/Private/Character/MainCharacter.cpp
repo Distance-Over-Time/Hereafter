@@ -14,101 +14,121 @@
 
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+  // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+  PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->InitCapsuleSize(76.f, 76.f);
+  GetCapsuleComponent()->InitCapsuleSize(76.f, 76.f);
 
-	CharacterSprite = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("CharacterFlipbook"));
-	CharacterSprite->SetupAttachment(GetRootComponent());
-	CharacterSprite->SetRelativeRotation(FRotator(90.0f, 0.0f, -90.0f));
+  CharacterSprite = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("CharacterFlipbook"));
+  CharacterSprite->SetupAttachment(GetRootComponent());
+  CharacterSprite->SetRelativeRotation(FRotator(90.0f, 0.0f, -90.0f));
 
-	// Create a spring arm component
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 0.0f;
+  // Create a spring arm component
+  CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+  CameraBoom->SetupAttachment(GetRootComponent());
+  CameraBoom->TargetArmLength = 0.0f;
 
-	// Disabling the camera lag and collision test
-	CameraBoom->bEnableCameraLag = false;
-	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->bInheritPitch = false;
-	CameraBoom->bInheritRoll = false;
-	CameraBoom->bInheritYaw = false;
+  // Disabling the camera lag and collision test
+  CameraBoom->bEnableCameraLag = false;
+  CameraBoom->bDoCollisionTest = false;
+  CameraBoom->bInheritPitch = false;
+  CameraBoom->bInheritRoll = false;
+  CameraBoom->bInheritYaw = false;
 
-	// Create and position the follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom);
-	FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 1000.0f)); // Setting camera's relative location
-	FollowCamera->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f)); // Pointing downwards.
+  // Create and position the follow camera
+  FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+  FollowCamera->SetupAttachment(CameraBoom);
+  FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 1000.0f)); // Setting camera's relative location
+  FollowCamera->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f)); // Pointing downwards.
 
-	// Initialize and set up the point light component
-	PointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
-	PointLight->SetupAttachment(GetRootComponent());
-	PointLight->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f)); // Positioned 250 units above the character
+  // Initialize and set up the point light component
+  PointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
+  PointLight->SetupAttachment(GetRootComponent());
+  PointLight->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f)); // Positioned 250 units above the character
 }
 
 void AMainCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+  Super::BeginPlay();
 
   AdjustLightBasedOnMapLevel();
-	
+
 }
 
 void AMainCharacter::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
 
-  UpdateCharacterDirection();
-  UpdateLightPosition();
-  CharacterSprite->Play();
-  PlayFootstepSound();
+  FVector Direction = DetermineMovementDirection();
+  HandleMovement(Direction, DeltaTime);
 
-  // Reset movement values
-  MoveForwardValue = 0;
-  MoveRightValue = 0;
+  // Additional updates (light position, playing footstep sounds, etc.)
+  UpdateLightPosition();
+  PlayFootstepSound();
 }
 
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+  Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Bind movement functions
-	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
+  // Bind movement functions
+  PlayerInputComponent->BindAction("MoveForward", IE_Pressed, this, &AMainCharacter::MoveForwardDown);
+  PlayerInputComponent->BindAction("MoveForward", IE_Released, this, &AMainCharacter::MoveForwardUp);
+  PlayerInputComponent->BindAction("MoveBackward", IE_Pressed, this, &AMainCharacter::MoveBackwardDown);
+  PlayerInputComponent->BindAction("MoveBackward", IE_Released, this, &AMainCharacter::MoveBackwardUp);
+  PlayerInputComponent->BindAction("MoveRight", IE_Pressed, this, &AMainCharacter::MoveRightDown);
+  PlayerInputComponent->BindAction("MoveRight", IE_Released, this, &AMainCharacter::MoveRightUp);
+  PlayerInputComponent->BindAction("MoveLeft", IE_Pressed, this, &AMainCharacter::MoveLeftDown);
+  PlayerInputComponent->BindAction("MoveLeft", IE_Released, this, &AMainCharacter::MoveLeftUp);
 
 }
 
-void AMainCharacter::MoveForward(float Value)
+void AMainCharacter::MoveForwardDown()
 {
-	MoveForwardValue = Value;
-
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-		if (FMath::Abs(Value) > FMath::Abs(LastMoveRightValue))
-		{
-			AddMovementInput(Direction, Value);
-		}
-	}
-
-	LastMoveForwardValue = Value;
+  bIsForwardPressed = true;
+  LastDirection = ELastMoveDirection::LMD_Forward;
 }
 
-void AMainCharacter::MoveRight(float Value)
+void AMainCharacter::MoveForwardUp()
 {
-	MoveRightValue = Value;
+  bIsForwardPressed = false;
+  UpdateMovementDirection();
+}
 
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-		if (FMath::Abs(Value) > FMath::Abs(LastMoveForwardValue))
-		{
-			AddMovementInput(Direction, Value);
-		}
-	}
+void AMainCharacter::MoveBackwardDown()
+{
+  bIsBackPressed = true;
+  LastDirection = ELastMoveDirection::LMD_Backward;
+}
 
-	LastMoveRightValue = Value;
+void AMainCharacter::MoveBackwardUp()
+{
+  bIsBackPressed = false;
+  UpdateMovementDirection();
+}
+
+void AMainCharacter::MoveRightDown()
+{
+  bIsRightPressed = true;
+  LastDirection = ELastMoveDirection::LMD_Right;
+}
+
+void AMainCharacter::MoveRightUp()
+{
+  bIsRightPressed = false;
+  UpdateMovementDirection();
+}
+
+void AMainCharacter::MoveLeftDown()
+{
+  bIsLeftPressed = true;
+  LastDirection = ELastMoveDirection::LMD_Left;
+}
+
+void AMainCharacter::MoveLeftUp()
+{
+  bIsLeftPressed = false;
+  UpdateMovementDirection();
 }
 
 void AMainCharacter::AdjustLightBasedOnMapLevel()
@@ -149,35 +169,51 @@ void AMainCharacter::UpdateCharacterDirection()
 {
   if (FMath::Abs(MoveForwardValue) > FMath::Abs(MoveRightValue))
   {
-    MoveForwardValue > 0 ? SetMovingDirection(LastMoveDirection::LMD_Forward, MoveForwardFlipbook)
-      : SetMovingDirection(LastMoveDirection::LMD_Backward, MoveBackwardFlipbook);
+    LastDirection = MoveForwardValue > 0 ? ELastMoveDirection::LMD_Forward : ELastMoveDirection::LMD_Backward;
   }
   else if (FMath::Abs(MoveRightValue) > FMath::Abs(MoveForwardValue))
   {
-    MoveRightValue > 0 ? SetMovingDirection(LastMoveDirection::LMD_Left, MoveLeftFlipbook)
-      : SetMovingDirection(LastMoveDirection::LMD_Right, MoveRightFlipbook);
+    LastDirection = MoveRightValue > 0 ? ELastMoveDirection::LMD_Right : ELastMoveDirection::LMD_Left;
   }
-  else
+
+  // Now set the flipbook based on the LastDirection
+  switch (LastDirection)
   {
+  case ELastMoveDirection::LMD_Forward:
+    CharacterSprite->SetFlipbook(MoveForwardFlipbook);
+    break;
+  case ELastMoveDirection::LMD_Backward:
+    CharacterSprite->SetFlipbook(MoveBackwardFlipbook);
+    break;
+  case ELastMoveDirection::LMD_Left:
+    CharacterSprite->SetFlipbook(MoveRightFlipbook);
+    break;
+  case ELastMoveDirection::LMD_Right:
+    CharacterSprite->SetFlipbook(MoveLeftFlipbook);
+    break;
+  default:
     UpdateIdlePose();
+    break;
   }
 }
 
 void AMainCharacter::UpdateIdlePose()
 {
-  switch (LastDirection)
+  ELastMoveDirection DirectionToUse = (LastDirection == ELastMoveDirection::LMD_None) ? PreviousDirection : LastDirection;
+
+  switch (DirectionToUse)
   {
-  case LastMoveDirection::LMD_Forward:
+  case ELastMoveDirection::LMD_Forward:
     CharacterSprite->SetFlipbook(IdleForwardFlipbook);
     break;
-  case LastMoveDirection::LMD_Backward:
+  case ELastMoveDirection::LMD_Backward:
     CharacterSprite->SetFlipbook(IdleBackwardFlipbook);
     break;
-  case LastMoveDirection::LMD_Left:
-    CharacterSprite->SetFlipbook(IdleLeftFlipbook);
-    break;
-  case LastMoveDirection::LMD_Right:
+  case ELastMoveDirection::LMD_Left:
     CharacterSprite->SetFlipbook(IdleRightFlipbook);
+    break;
+  case ELastMoveDirection::LMD_Right:
+    CharacterSprite->SetFlipbook(IdleLeftFlipbook);
     break;
   default:
     CharacterSprite->SetFlipbook(IdleFlipbook);
@@ -185,21 +221,42 @@ void AMainCharacter::UpdateIdlePose()
   }
 }
 
+void AMainCharacter::UpdateMovementDirection()
+{
+  if (!bIsForwardPressed && !bIsBackPressed && !bIsRightPressed && !bIsLeftPressed)
+  {
+    if (LastDirection != ELastMoveDirection::LMD_None)
+    {
+      // Preserve the last direction if no keys are pressed
+      PreviousDirection = LastDirection;
+    }
+    LastDirection = ELastMoveDirection::LMD_None;
+  }
+  else
+  {
+    if (bIsForwardPressed) LastDirection = ELastMoveDirection::LMD_Forward;
+    if (bIsBackPressed) LastDirection = ELastMoveDirection::LMD_Backward;
+    if (bIsRightPressed) LastDirection = ELastMoveDirection::LMD_Right;
+    if (bIsLeftPressed) LastDirection = ELastMoveDirection::LMD_Left;
+  }
+}
+
 void AMainCharacter::UpdateLightPosition()
 {
   FVector NewLightPosition;
+  ELastMoveDirection DirectionToUse = (LastDirection == ELastMoveDirection::LMD_None) ? PreviousDirection : LastDirection;
 
-  switch (LastDirection)
+  switch (DirectionToUse)
   {
-  case LastMoveDirection::LMD_Forward:
-  case LastMoveDirection::LMD_Backward:
+  case ELastMoveDirection::LMD_Forward:
+  case ELastMoveDirection::LMD_Backward:
     NewLightPosition = FVector(0.0f, 0.0f, 250.0f);
     break;
-  case LastMoveDirection::LMD_Left:
-    NewLightPosition = FVector(0.0f, 100.0f, 250.0f);
-    break;
-  case LastMoveDirection::LMD_Right:
+  case ELastMoveDirection::LMD_Left:
     NewLightPosition = FVector(0.0f, -100.0f, 250.0f);
+    break;
+  case ELastMoveDirection::LMD_Right:
+    NewLightPosition = FVector(0.0f, 100.0f, 250.0f);
     break;
   default:
     NewLightPosition = FVector(0.0f, 0.0f, 250.0f);
@@ -209,10 +266,40 @@ void AMainCharacter::UpdateLightPosition()
   PointLight->SetRelativeLocation(NewLightPosition);
 }
 
-void AMainCharacter::SetMovingDirection(LastMoveDirection Direction, UPaperFlipbook* Flipbook)
+void AMainCharacter::SetMovingDirection(ELastMoveDirection Direction, UPaperFlipbook* Flipbook)
 {
   LastDirection = Direction;
   CharacterSprite->SetFlipbook(Flipbook);
+}
+
+FVector AMainCharacter::DetermineMovementDirection()
+{
+  switch (LastDirection)
+  {
+  case ELastMoveDirection::LMD_Forward:
+    return GetActorForwardVector();
+  case ELastMoveDirection::LMD_Backward:
+    return -GetActorForwardVector();
+  case ELastMoveDirection::LMD_Right:
+    return GetActorRightVector();
+  case ELastMoveDirection::LMD_Left:
+    return -GetActorRightVector();
+  default:
+    return FVector::ZeroVector;
+  }
+}
+
+void AMainCharacter::HandleMovement(const FVector& Direction, float DeltaTime)
+{
+  if (!Direction.IsZero())
+  {
+    AddMovementInput(Direction, 1.0f);
+    UpdateCharacterDirection();
+  }
+  else
+  {
+    UpdateIdlePose();
+  }
 }
 
 void AMainCharacter::PlayFootstepSound()
@@ -287,7 +374,7 @@ EMaterialType AMainCharacter::GetSurfaceType()
       if (HitMaterial)
       {
         FString MaterialName = HitMaterial->GetName();
-        UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *MaterialName);
+        //UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *MaterialName);
 
         if (MaterialName.Contains("Dirt"))
         {
@@ -315,10 +402,6 @@ EMaterialType AMainCharacter::GetSurfaceType()
         }
       }
     }
-  }
-  else
-  {
-    UE_LOG(LogTemp, Warning, TEXT("No blocking hit found."));
   }
 
   return EMaterialType::MT_SURFACE_DEFAULT;
