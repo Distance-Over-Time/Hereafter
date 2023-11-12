@@ -373,9 +373,21 @@ EMaterialType AMainCharacter::GetSurfaceType()
       {
         return EMaterialType::MT_SURFACE_DIRT;
       }
+      else if (HitActor->ActorHasTag(FName("Gravel")))
+      {
+        return EMaterialType::MT_SURFACE_GRAVEL;
+      }
+      else if (HitActor->ActorHasTag(FName("Glass")))
+      {
+        return EMaterialType::MT_SURFACE_GLASS;
+      }
       else if (HitActor->ActorHasTag(FName("Mud")))
       {
         return EMaterialType::MT_SURFACE_MUD;
+      }
+      else if (HitActor->ActorHasTag(FName("Puddle")))
+      {
+        return EMaterialType::MT_SURFACE_PUDDLE;
       }
       else if (HitActor->ActorHasTag(FName("Stone")))
       {
