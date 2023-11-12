@@ -368,6 +368,20 @@ EMaterialType AMainCharacter::GetSurfaceType()
   if (HitResult.bBlockingHit)
   {
     UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+
+    AActor* HitActor = HitResult.GetActor();
+
+    if (HitActor != nullptr)
+    {
+      if (HitActor->ActorHasTag(FName("Dirt")))
+      {
+        return EMaterialType::MT_SURFACE_DIRT;
+      }
+      else if (HitActor->ActorHasTag(FName("Mud")))
+      {
+        return EMaterialType::MT_SURFACE_MUD;
+      }
+    }
     if (HitComponent)
     {
       UMaterialInterface* HitMaterial = HitComponent->GetMaterial(0);
