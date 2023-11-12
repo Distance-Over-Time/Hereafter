@@ -121,7 +121,7 @@ private:
 	void HandleMovement(const FVector& Direction, float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = "Audio")
-	void PlayFootstepSound();
+	void PlayFootstepSound(float DeltaTime);
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	USpringArmComponent* CameraBoom;
@@ -142,6 +142,8 @@ private:
 	bool bIsBackPressed = false;
 	bool bIsRightPressed = false;
 	bool bIsLeftPressed = false;
+
+	float TimeSinceLastFootstep = 0.0f;
 
 public:
 	EMaterialType GetSurfaceType();
