@@ -305,7 +305,7 @@ void AMainCharacter::HandleMovement(const FVector& Direction, float DeltaTime)
 
 void AMainCharacter::PlayFootstepSound(float DeltaTime)
 {
-  const float SecondsPerStep = 0.17f; // Adjust this value for footstep frequency
+  const float SecondsPerStep = 0.5f; // Adjust this value for footstep frequency
   const float VolumeMultiplier = 1.0f;
 
   // Check if the character is moving
@@ -373,21 +373,9 @@ EMaterialType AMainCharacter::GetSurfaceType()
       {
         return EMaterialType::MT_SURFACE_DIRT;
       }
-      else if (HitActor->ActorHasTag(FName("Gravel")))
-      {
-        return EMaterialType::MT_SURFACE_GRAVEL;
-      }
-      else if (HitActor->ActorHasTag(FName("Glass")))
-      {
-        return EMaterialType::MT_SURFACE_GLASS;
-      }
       else if (HitActor->ActorHasTag(FName("Mud")))
       {
         return EMaterialType::MT_SURFACE_MUD;
-      }
-      else if (HitActor->ActorHasTag(FName("Puddle")))
-      {
-        return EMaterialType::MT_SURFACE_PUDDLE;
       }
       else if (HitActor->ActorHasTag(FName("Stone")))
       {
