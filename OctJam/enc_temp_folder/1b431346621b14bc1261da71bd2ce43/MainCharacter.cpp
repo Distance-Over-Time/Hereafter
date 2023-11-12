@@ -305,7 +305,7 @@ void AMainCharacter::HandleMovement(const FVector& Direction, float DeltaTime)
 
 void AMainCharacter::PlayFootstepSound(float DeltaTime)
 {
-  const float SecondsPerStep = 0.17f; // Adjust this value for footstep frequency
+  const float SecondsPerStep = 0.5f; // Adjust this value for footstep frequency
   const float VolumeMultiplier = 1.0f;
 
   // Check if the character is moving
