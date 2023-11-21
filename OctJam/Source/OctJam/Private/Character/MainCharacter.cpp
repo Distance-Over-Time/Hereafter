@@ -164,6 +164,7 @@ void AMainCharacter::AdjustLightBasedOnMapLevel()
 
   // Set the new attenuation radius for the point light
   PointLight->SetAttenuationRadius(newRadius);
+  PointLight->SetIntensity(newIntensity);
 }
 
 void AMainCharacter::UpdateCharacterDirection()
@@ -250,17 +251,19 @@ void AMainCharacter::UpdateLightPosition()
   switch (DirectionToUse)
   {
   case ELastMoveDirection::LMD_Forward:
+    NewLightPosition = FVector(-50.0f, 30.0f, 30.0f);
+    break;
   case ELastMoveDirection::LMD_Backward:
-    NewLightPosition = FVector(0.0f, 0.0f, 250.0f);
+    NewLightPosition = FVector(-35.0f, -20.0f, 30.0f);
     break;
   case ELastMoveDirection::LMD_Left:
-    NewLightPosition = FVector(0.0f, -100.0f, 250.0f);
+    NewLightPosition = FVector(-30.0f, -25.0f, 30.0f);
     break;
   case ELastMoveDirection::LMD_Right:
-    NewLightPosition = FVector(0.0f, 100.0f, 250.0f);
+    NewLightPosition = FVector(-40.0f, 10.0f, 30.0f);
     break;
   default:
-    NewLightPosition = FVector(0.0f, 0.0f, 250.0f);
+    NewLightPosition = FVector(-50.0f, 30.0f, 30.0f);
     break;
   }
 
