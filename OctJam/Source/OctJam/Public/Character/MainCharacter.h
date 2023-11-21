@@ -49,6 +49,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Light")
 	void AdjustLightBasedOnMapLevel();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Light")
+	UPointLightComponent* PointLight;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
 	UPaperFlipbookComponent* CharacterSprite;
 
@@ -128,9 +131,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* FollowCamera;
-
-	UPROPERTY(VisibleAnywhere)
-	UPointLightComponent* PointLight;
 
 	ELastMoveDirection LastDirection = ELastMoveDirection::LMD_None;
 	ELastMoveDirection PreviousDirection = ELastMoveDirection::LMD_None;
