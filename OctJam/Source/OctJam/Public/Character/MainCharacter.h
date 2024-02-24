@@ -101,6 +101,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TArray<USoundCue*> FootstepStoneSounds;
 
+	UFUNCTION(BlueprintCallable, Category = "Sprite")
+	void UpdateIdlePose();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -117,7 +120,6 @@ private:
 
 	void UpdateCharacterDirection();
 	void UpdateLightPosition();
-	void UpdateIdlePose();
 	void UpdateMovementDirection();
 	void SetMovingDirection(ELastMoveDirection Direction, UPaperFlipbook* Flipbook);
 	FVector DetermineMovementDirection();
