@@ -1,0 +1,74 @@
+[
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/.vscode/c_cpp_properties.json",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/OctJam.Build.cs",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/OctJam.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/OctJam.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/Private/Character/Enemy.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/Private/Character/MainCharacter.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/Public/Character/.vscode/c_cpp_properties.json",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/Public/Character/Enemy.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	},
+	{
+		"file": "/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/Source/OctJam/Public/Character/MainCharacter.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/ryandavis/Documents/GitHub/Hereafter/OctJam 5.3/.vscode/compileCommands_Default/OctJam.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.3/Engine/Source"
+	}
+]
